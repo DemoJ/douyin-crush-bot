@@ -1,46 +1,37 @@
 ---
 name: douyin-crush-bot
-description: 抖音自动化助手。用于自动刷抖音视频、对博主颜值进行 AI 打分、自动点赞或关注高颜值博主。当用户提到“刷抖音”、“找美女/帅哥”、“自动点赞抖音”时使用。
-argument-hint: [--threshold 8.0] [--gender 女] [--action all] [--max-videos 100] [--login]
+description: 抖音网页版自动化工具。用于自动刷视频、对博主颜值进行打分、自动点赞或关注高颜值博主。当用户提到“刷抖音”、“找美女/帅哥”、“自动点赞抖音”时使用。
+argument-hint: [--threshold 8.0] [--gender 女] [--action all] [--max-videos 100]
 allowed-tools: Bash, Read, Write
 ---
 
-# 抖音颜值心动机器人 (Douyin Crush Bot)
+# 执行准则 (CRITICAL)
+1. **禁止闲聊**: 收到任务后，严禁回复任何“好的”、“没问题”、“正在为您启动”等废话。
+2. **即刻执行**: 必须直接生成并调用对应的 `run_shell_command`。
+3. **环境优先**: 必须先检查并准备 Python 虚拟环境。
 
-此技能通过 Playwright 控制抖音网页版，并结合视觉 AI 实现自动化审美筛选。
+# 运行环境检查
+在执行任务前，**第一步**必须使用 `ls .venv` 检查虚拟环境是否存在。
+- 如果不存在：
+  - Windows: `python -m venv .venv && ".venv/Scripts/pip" install -r ".claude/skills/douyin-crush-bot/requirements.txt" && playwright install chromium`
+  - Linux/macOS: `python3 -m venv .venv && ".venv/bin/pip" install -r ".claude/skills/douyin-crush-bot/requirements.txt" && playwright install chromium`
+- 如果已存在：直接进行下一步。
 
-## 运行环境规范
+# 参数提取
+从用户意图中提取：
+- `--threshold`: 颜值分 (默认 8.0)
+- `--gender`: 性别 (女/男/全部，默认 全部)
+- `--max-videos`: 数量 (默认 100)
+- `--action`: 行为 (like/follow/all，默认 all)
 
-在执行任何 Python 脚本时，**必须**优先检查并使用项目根目录下的虚拟环境解释器，严禁直接使用系统全局 Python，除非虚拟环境不存在。
-- **Windows**: 使用 `.\.venv\Scripts\python.exe`
-- **Linux/macOS**: 使用 `./.venv/bin/python`
+# 最终命令构建
+**注意：为了兼容 Git Bash 和 PowerShell，请统一使用正斜杠 `/` 并加上双引号。**
 
-**命令示例**:
-`.\.venv\Scripts\python.exe .claude/skills/douyin-crush-bot/scripts/bot.py --threshold 9.0`
+- **Windows 命令格式**: 
+  `".venv/Scripts/python.exe" ".claude/skills/douyin-crush-bot/scripts/bot.py" [参数]`
+- **Linux/macOS 命令格式**:
+  `"./venv/bin/python" ".claude/skills/douyin-crush-bot/scripts/bot.py" [参数]`
 
-## 核心操作流程
-
-1. **环境准备**：
-   - 检查并确保安装了 `requirements.txt` 中的依赖。
-   - 确保 Playwright 浏览器已安装 (`playwright install chromium`)。
-
-2. **登录管理**：
-   - 若未登录，运行 `/douyin-crush-bot --login`。
-   - 脚本 `scripts/login.py` 会启动浏览器供用户手动扫码，登录后 Cookies 将保存至 `auth.json`。
-
-3. **自动化运行**：
-   - 执行 `scripts/bot.py`，加载 `auth.json` 状态。
-   - 循环逻辑：截图 -> 视觉 AI 打分 -> 决策（点赞/关注） -> 下一个视频。
-
-## 参数说明
-
-- `--threshold`: 颜值打分阈值 (0.0 - 10.0)，默认 8.0。
-- `--gender`: 目标性别 (男/女/全部)，默认 全部。
-- `--action`: 互动行为 (like:仅点赞, follow:仅关注, all:全部)，默认 all。
-- `--max-videos`: 本次运行最大浏览视频数，默认 100。
-- `--login`: 启动登录模式，手动扫码后保存状态。
-
-## 提示
-
-- 运行前请确保在脚本中配置好你的视觉模型 API Key。
-- 建议使用有界面模式运行，以便观察自动化过程。
+# 示例意图响应
+**用户**: "帮我刷10条抖音，点赞8分以上的妹子"
+**你的唯一动作**: 调用 `run_shell_command` 执行 `".venv/Scripts/python.exe" ".claude/skills/douyin-crush-bot/scripts/bot.py" --max-videos 10 --threshold 8.0 --gender 女 --action like`

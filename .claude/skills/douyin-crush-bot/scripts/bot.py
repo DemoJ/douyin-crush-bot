@@ -176,9 +176,26 @@ class DouyinBot:
 
 
     async def run(self):
+        # 自动检测登录状态
         if not os.path.exists(self.auth_path):
-            log(f"错误: 找不到登录状态文件 {self.auth_path}，请先运行 --login。")
-            return
+            log(f"未检测到登录状态文件 ({self.auth_path})，即将启动登录流程...")
+            log("请在弹出的浏览器中扫码登录，登录成功后脚本将自动继续。")
+            
+            login_script = os.path.join(self.current_dir, "login.py")
+            try:
+                # 使用当前相同的 Python 解释器调用登录脚本
+                import subprocess
+                subprocess.run([sys.executable, login_script], check=True)
+                
+                # 重新检查
+                if not os.path.exists(self.auth_path):
+                    log("错误: 登录流程未完成或未保存状态文件，程序退出。")
+                    return
+                log("登录成功！继续执行自动化任务...")
+                
+            except Exception as e:
+                log(f"启动登录脚本失败: {e}")
+                return
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
