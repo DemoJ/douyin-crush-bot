@@ -30,18 +30,18 @@ playwright install chromium
 
 将 `.claude/skills/douyin-crush-bot/.env.example` 复制为 `.claude/skills/douyin-crush-bot/.env`，并填入你的 API 配置。
 
-### 3. 登录抖音
+### 3. 准备登录状态
 
-运行登录命令，在弹出的窗口中完成扫码：
-
-```bash
-/douyin-crush-bot --login
-```
+首次运行时，如果程序未检测到 `.claude/skills/douyin-crush-bot/auth.json`，会自动启动登录流程，并在弹出的浏览器窗口中等待你扫码登录。登录成功后会自动保存状态，后续运行将优先复用该登录状态。
 
 ## 使用方法
 
 ### 1. 命令行调用 (斜杠命令)
-直接输入 `/douyin-crush-bot` 并带上参数。
+直接输入 `/douyin-crush-bot` 并带上参数，例如：
+
+```bash
+/douyin-crush-bot --max-videos 20 --threshold 8.0 --gender 女 --action like
+```
 
 ### 2. 自然语言调用
 由于已配置 `description`，你可以直接对 Claude 说：
@@ -71,8 +71,7 @@ disable-model-invocation: true  # 添加这一行
 | `--threshold` | 颜值评分阈值 | 8.0 | 0.0 - 10.0 |
 | `--gender` | 目标性别筛选 | 全部 | 男, 女, 全部 |
 | `--action` | 匹配后的动作 | all | like, follow, all |
-| `--max-videos` | 本次运行最大浏览数| 100 | 任意正整数 |
-| `--login` | 启动登录模式 | - | - |
+| `--max-videos` | 本次运行最大浏览数 | 100 | 任意正整数 |
 
 ## 注意事项
 
